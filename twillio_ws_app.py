@@ -55,6 +55,8 @@ async def media_stream(ws: WebSocket):
                 msg = await ws.receive_text()
                 data = json.loads(msg)
                 event = data.get("event")
+                print("ws event data is...", event)
+                print("ws data is...", data)
 
                 if event == "start":
                     call_sid = data.get("start", {}).get("callSid")
