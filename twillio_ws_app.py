@@ -30,7 +30,7 @@ async def answer_call(request: Request):
     <Start>
         <Stream url="wss://twilio-media-stream-demo-2.onrender.com/media" />
     </Start>
-    <Say voice="Polly.Joanna">Hello, this is a FastAPI Twilio Media Stream demo. Please speak now.</Say>
+    <Say voice="Polly.Joanna">Hello, this is a FastAPI Twilio Media Stream demo with new update server setup. Please speak now.</Say>
     <Pause length="60"/>
 </Response>"""
 
