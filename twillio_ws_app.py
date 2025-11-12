@@ -14,7 +14,7 @@ os.makedirs(SAVE_DIR, exist_ok=True)
 # ---------- 1️⃣ TwiML webhook ----------
 @app.post("/answer")
 async def answer_call(request: Request):
-    print("executing answer section...")
+    print("executing updated answer section...")
 
     """
     Twilio hits this endpoint when a call comes in.
@@ -26,7 +26,7 @@ async def answer_call(request: Request):
     twiml = f"""<?xml version="1.0" encoding="UTF-8"?>
 <Response>
     <Start>
-        <Stream url="wss://twilio-media-stream-demo.onrender.com/media" />
+        <Stream url="wss://twilio-media-stream-demo.onrender.com/media" track="both_tracks" />
     </Start>
     <Say voice="Polly.Joanna">Hello, this is a FastAPI Twilio Media Stream demo. Please speak now.</Say>
     <Pause length="60"/>
