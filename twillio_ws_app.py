@@ -23,12 +23,12 @@ async def answer_call(request: Request):
     It responds with TwiML telling Twilio to start a Media Stream
     to the /media WebSocket endpoint.
     """
-    stream_url = os.getenv("STREAM_URL", "wss://twilio-media-stream-demo.onrender.com/media")
+    stream_url = os.getenv("STREAM_URL", "wss://twilio-media-stream-demo-2.onrender.com/media")
 
     twiml = f"""<?xml version="1.0" encoding="UTF-8"?>
 <Response>
     <Start>
-        <Stream url="wss://twilio-media-stream-demo.onrender.com/media" track="both_tracks" />
+        <Stream url="wss://twilio-media-stream-demo-2.onrender.com/media" />
     </Start>
     <Say voice="Polly.Joanna">Hello, this is a FastAPI Twilio Media Stream demo. Please speak now.</Say>
     <Pause length="60"/>
