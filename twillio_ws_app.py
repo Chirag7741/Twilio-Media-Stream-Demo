@@ -54,8 +54,10 @@ async def media_stream(ws: WebSocket):
 
     print("🔗 Twilio WebSocket connected")
 
-    with open(raw_path, "wb") as f:
-        try:
+    received_audio = False  # flag to check if we got media
+
+    try:
+        with open(raw_path, "wb") as f:
             while True:
                 msg = await ws.receive_text()
                 data = json.loads(msg)
@@ -68,27 +70,35 @@ async def media_stream(ws: WebSocket):
 
                 elif event == "media":
                     payload = data["media"]["payload"]
-                    chunk = base64.b64decode(payload)
-                    f.write(chunk)
+                    f.write(base64.b64decode(payload))
+                    received_audio = True
 
                 elif event == "stop":
-                    print("⏹️  Stream stopped.")
+                    print("⏹️  Stream stopped by Twilio.")
                     break
 
-        except WebSocketDisconnect:
-            print("❌ WebSocket disconnected.")
-        except Exception as e:
-            print("⚠️  Error:", e)
-
-    print("Executing save audio script......")
-    # Convert ULaw → WAV → MP3
-    try:
-        audio = AudioSegment.from_file(raw_path, format="ulaw", frame_rate=8000, channels=1)
-        audio.export(wav_path, format="wav")
-        audio.export(mp3_path, format="mp3")
-        print(f"✅ Converted and saved as MP3: {mp3_path}")
+    except WebSocketDisconnect:
+        print("❌ WebSocket disconnected by Twilio.")
     except Exception as e:
-        print(f"⚠️ Error converting audio: {e}")
+        print(f"⚠️  Error in stream loop: {e}")
+
+    # ✅ Always executed after disconnect or stop
+    print("Executing save audio script......")
+
+    if received_audio:
+        try:
+            from pydub import AudioSegment
+
+            # Use μ-law format (Twilio sends 8kHz mono μ-law)
+            audio = AudioSegment.from_file(
+                raw_path, format="mulaw", frame_rate=8000, channels=1
+            )
+            audio.export(mp3_path, format="mp3")
+            print(f"✅ Converted and saved as MP3: {mp3_path}")
+        except Exception as e:
+            print(f"⚠️ Error converting audio: {e}")
+    else:
+        print("⚠️ No audio data received, skipping conversion.")
 
 
 # ---------- 3️⃣ Root check ----------
