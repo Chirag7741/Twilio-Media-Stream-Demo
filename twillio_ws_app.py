@@ -4,6 +4,7 @@ import json
 from datetime import datetime
 from fastapi import FastAPI, Request, WebSocket, WebSocketDisconnect
 from fastapi.responses import Response
+from pydub import AudioSegment
 
 app = FastAPI(title="Twilio Media Stream Demo")
 
@@ -44,8 +45,11 @@ async def media_stream(ws: WebSocket):
     """
     print("STarted websocket connection....")
     await ws.accept()
+
     ts = datetime.now().strftime("%Y%m%d_%H%M%S")
     raw_path = os.path.join(SAVE_DIR, f"twilio_{ts}.raw")
+    wav_path = os.path.join(SAVE_DIR, f"twilio_{ts}.wav")
+    mp3_path = os.path.join(SAVE_DIR, f"twilio_{ts}.mp3")
 
     print("🔗 Twilio WebSocket connected")
 
@@ -56,7 +60,6 @@ async def media_stream(ws: WebSocket):
                 data = json.loads(msg)
                 event = data.get("event")
                 print("ws event data is...", event)
-                print("ws data is...", data)
 
                 if event == "start":
                     call_sid = data.get("start", {}).get("callSid")
@@ -76,7 +79,15 @@ async def media_stream(ws: WebSocket):
         except Exception as e:
             print("⚠️  Error:", e)
 
-    print(f"💾 Audio saved to {raw_path}")
+    print("Executing save audio script......")
+    # Convert ULaw → WAV → MP3
+    try:
+        audio = AudioSegment.from_file(raw_path, format="ulaw", frame_rate=8000, channels=1)
+        audio.export(wav_path, format="wav")
+        audio.export(mp3_path, format="mp3")
+        print(f"✅ Converted and saved as MP3: {mp3_path}")
+    except Exception as e:
+        print(f"⚠️ Error converting audio: {e}")
 
 
 # ---------- 3️⃣ Root check ----------
